@@ -1,0 +1,291 @@
+// Core types for pagent-sheets
+
+export type CellValue = string | number | boolean | null;
+
+export interface CellStyle {
+  bold?: boolean;
+  italic?: boolean;
+  fontFamily?: string;
+  fontSize?: number;
+  fontColor?: string;
+  backgroundColor?: string;
+  textAlign?: 'left' | 'center' | 'right';
+  verticalAlign?: 'top' | 'middle' | 'bottom';
+  borderTop?: string;
+  borderRight?: string;
+  borderBottom?: string;
+  borderLeft?: string;
+  textWrap?: boolean;
+  textDecoration?: 'none' | 'underline' | 'line-through';
+}
+
+export type FormatType =
+  | 'text'
+  | 'number'
+  | 'currency'
+  | 'accounting'
+  | 'percentage'
+  | 'scientific'
+  | 'fraction'
+  | 'date'
+  | 'time'
+  | 'datetime'
+  | 'duration'
+  | 'custom'
+  | undefined;
+
+export interface CellFormat {
+  type?: FormatType;
+
+  // Number format options
+  decimalPlaces?: number; // 0-30
+  useThousandsSeparator?: boolean;
+
+  // Currency format options
+  currencyCode?: string; // USD, EUR, GBP, JPY, etc.
+  currencySymbolPosition?: 'prefix' | 'suffix';
+
+  // Negative number display options
+  negativeFormat?: 'minus' | 'parentheses' | 'red';
+
+  // Date/Time format options
+  dateFormat?: string; // e.g., 'MM/DD/YYYY', 'DD-MM-YYYY'
+  timeFormat?: string; // e.g., 'HH:mm:ss', 'h:mm AM/PM'
+
+  // Fraction format options
+  fractionType?: 'upToOne' | 'upToTwo' | 'upToThree' | 'asHalves' | 'asQuarters' | 'asEighths' | 'asSixteenths' | 'asTenths' | 'asHundredths';
+
+  // Duration format options
+  durationFormat?: 'hours' | 'minutes' | 'seconds' | 'milliseconds';
+
+  // Custom format pattern
+  pattern?: string; // Custom number format pattern (e.g., "#,##0.00", "0.0%")
+}
+
+export interface Cell {
+  value: CellValue;
+  formula?: string;
+  styleId?: string; // Reference to shared style in StylePool
+  formatId?: string; // Reference to shared format in FormatPool
+  comment?: string;
+  hyperlink?: string;
+}
+
+export interface Range {
+  startRow: number;
+  startCol: number;
+  endRow: number;
+  endCol: number;
+}
+
+export interface Selection {
+  ranges: Range[];
+  activeCell: { row: number; col: number };
+}
+
+export interface SortOrder {
+  column: number;
+  direction: 'asc' | 'desc';
+}
+
+export interface ColumnFilter {
+  column: number;
+  type: 'text' | 'number' | 'date';
+  criteria: FilterCriteria;
+}
+
+export type FilterCriteria =
+  | { type: 'equals'; value: string | number }
+  | { type: 'notEquals'; value: string | number }
+  | { type: 'contains'; value: string }
+  | { type: 'notContains'; value: string }
+  | { type: 'startsWith'; value: string }
+  | { type: 'endsWith'; value: string }
+  | { type: 'greaterThan'; value: number }
+  | { type: 'lessThan'; value: number }
+  | { type: 'greaterThanOrEqual'; value: number }
+  | { type: 'lessThanOrEqual'; value: number }
+  | { type: 'between'; min: number; max: number }
+  | { type: 'custom'; values: Set<string | number> }; // For multi-select
+
+export interface SheetConfig {
+  defaultRowHeight?: number;
+  defaultColWidth?: number;
+  rowHeights?: Map<number, number>;
+  colWidths?: Map<number, number>;
+  hiddenRows?: Set<number>;
+  hiddenCols?: Set<number>;
+  frozenRows?: number;
+  frozenCols?: number;
+  showGridLines?: boolean;
+  sortOrder?: SortOrder[]; // Multi-column sort order
+  filters?: Map<number, ColumnFilter>; // column -> filter
+}
+
+export interface Sheet {
+  id: string;
+  name: string;
+  cells: Map<string, Cell>; // key: "r:c"
+  config: SheetConfig;
+  rowCount: number;
+  colCount: number;
+
+  getCell(row: number, col: number): Cell | undefined;
+  setCell(row: number, col: number, cell: Partial<Cell>): void;
+  deleteCell(row: number, col: number): void;
+  getCellValue(row: number, col: number): unknown;
+  setCellValue(row: number, col: number, value: unknown): void;
+  getRange(range: Range): Map<string, Cell>;
+  setRange(range: Range, cells: Map<string, Cell> | Cell[][]): void;
+  clearRange(range: Range): void;
+  getRowHeight(row: number): number;
+  setRowHeight(row: number, height: number): void;
+  getColWidth(col: number): number;
+  setColWidth(col: number, width: number): void;
+  insertRows(startRow: number, count: number): void;
+  deleteRows(startRow: number, count: number): void;
+  insertCols(startCol: number, count: number): void;
+  deleteCols(startCol: number, count: number): void;
+  isRowHidden(row: number): boolean;
+  hideRow(row: number): void;
+  showRow(row: number): void;
+  isColHidden(col: number): boolean;
+  hideCol(col: number): void;
+  showCol(col: number): void;
+  getHiddenColsAdjacent(col: number): { before: number[]; after: number[] };
+  getHiddenRowsAdjacent(row: number): { above: number[]; below: number[] };
+  showColsInRange(startCol: number, endCol: number): void;
+  showRowsInRange(startRow: number, endRow: number): void;
+  getFrozenRows(): number;
+  setFrozenRows(count: number): void;
+  getFrozenCols(): number;
+  setFrozenCols(count: number): void;
+  setFreeze(rows: number, cols: number): void;
+  clearFreeze(): void;
+  hasFrozenPanes(): boolean;
+  setSortOrder(sortOrder: SortOrder[]): void;
+  getSortOrder(): SortOrder[];
+  clearSort(): void;
+  hasSort(): boolean;
+  setFilter(column: number, filter: ColumnFilter): void;
+  clearFilter(column: number): void;
+  getFilters(): Map<number, ColumnFilter>;
+  hasFilter(column: number): boolean;
+  clearAllFilters(): void;
+
+}
+
+export interface Workbook {
+  id: string;
+  name: string;
+  sheets: Map<string, Sheet>;
+  activeSheetId: string;
+  defaultRowHeight: number;
+  defaultColWidth: number;
+
+  // Undo/Redo
+  recordHistory(): void;
+  undo(): boolean;
+  redo(): boolean;
+  canUndo(): boolean;
+  canRedo(): boolean;
+
+  // Sorting
+  setSortOrder(sortOrder: SortOrder[], sheetId?: string): void;
+  getSortOrder(sheetId?: string): SortOrder[];
+  clearSort(sheetId?: string): void;
+  sortSheet(sheetId?: string): void;
+
+  // Filtering
+  setFilter(column: number, filter: ColumnFilter, sheetId?: string): void;
+  clearFilter(column: number, sheetId?: string): void;
+  getFilters(sheetId?: string): Map<number, ColumnFilter>;
+  clearAllFilters(sheetId?: string): void;
+
+  // Data serialization/deserialization
+  getData(): WorkbookData;
+  setData(data: WorkbookData): void;
+}
+
+export interface StylePool {
+  styles: Map<string, CellStyle>;
+  getOrCreate(style: CellStyle): string;
+  get(styleId: string): CellStyle | undefined;
+  getAllStyles(): Map<string, CellStyle>;
+}
+
+export interface FormatPool {
+  getOrCreate(format: CellFormat): string;
+  get(formatId: string): CellFormat | undefined;
+  getAllFormats(): Map<string, CellFormat>;
+}
+
+// Workbook data serialization interfaces
+export interface WorkbookData {
+  id: string;
+  name: string;
+  activeSheetId: string;
+  defaultRowHeight: number;
+  defaultColWidth: number;
+  stylePool: Record<string, CellStyle>; // styleId -> style object
+  formatPool?: Record<string, CellFormat>; // formatId -> format object (optional for backward compatibility)
+  sheets: SheetData[];
+  selection?: Selection; // Optional UI state
+}
+
+export interface SheetData {
+  id: string;
+  name: string;
+  cells: Array<{ key: string; cell: Cell }>; // key format: "row:col"
+  config: {
+    defaultRowHeight?: number;
+    defaultColWidth?: number;
+    rowHeights?: Array<[number, number]>; // [row, height] pairs
+    colWidths?: Array<[number, number]>; // [col, width] pairs
+    hiddenRows?: number[];
+    hiddenCols?: number[];
+    frozenRows?: number;
+    frozenCols?: number;
+    showGridLines?: boolean;
+    sortOrder?: SortOrder[];
+    filters?: Array<[number, ColumnFilter]>; // [column, filter] pairs
+  };
+  rowCount: number;
+  colCount: number;
+}
+
+export interface FormulaNode {
+  cellKey: string;
+  formula: string;
+  dependencies: Set<string>; // cellKeys this formula depends on
+  dependents: Set<string>; // cellKeys that depend on this formula
+  cachedValue?: CellValue;
+  isDirty: boolean;
+}
+
+export interface FormulaGraph {
+  nodes: Map<string, FormulaNode>;
+  addFormula(cellKey: string, formula: string, dependencies: Set<string>): void;
+  removeFormula(cellKey: string): void;
+  getDependents(cellKey: string): Set<string>;
+  getDependencies(cellKey: string): Set<string>;
+  invalidate(cellKey: string): void;
+  getDirtyCells(): Set<string>;
+}
+
+export type EventType =
+  | 'cellChange'
+  | 'cellSelection'
+  | 'sheetChange'
+  | 'sheetAdd'
+  | 'sheetDelete'
+  | 'sheetRename'
+  | 'workbookChange';
+
+export interface EventData {
+  type: EventType;
+  payload: unknown;
+}
+
+export type EventHandler = (data: EventData) => void;
+

@@ -1,0 +1,54 @@
+{
+  "name": "pagent-libs",
+  "version": "0.1.0-alpha.1",
+  "description": "A forever-free, open-source library that delivers the full editing experience you'd expect from commercial suites like Google Workspace or Microsoft Office, but built for developers who value performance, flexibility, and complete control over their tools.",
+  "license": "MIT",
+  "keywords": [
+    "spreadsheet",
+    "docs",
+    "slides",
+    "excel",
+    "document",
+    "presentation"
+  ],
+  "author": {
+    "name": "b32n",
+    "email": "hello@bharatnadkarni.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pagentapp/pagent-libs"
+  },
+  "bugs": {
+    "url": "https://github.com/pagentapp/pagent-libs/issues"
+  },
+  "homepage": "https://libs.pagentapp.com",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "dev": "npm run dev --workspaces --if-present",
+    "test": "npm run test --workspaces",
+    "lint": "eslint --ext .ts,.tsx packages",
+    "type-check": "npm run type-check --workspaces",
+    "clean": "npm run clean --workspaces --if-present && rm -rf node_modules",
+    "install:all": "npm install && npm install --workspaces"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.50.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-react": "^7.33.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "prettier": "^3.0.0",
+    "tslib": "^2.6.0",
+    "typescript": "^5.2.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
+

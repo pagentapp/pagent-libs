@@ -1,0 +1,5 @@
+// Features module - Advanced spreadsheet features
+export * from './freeze';
+export * from './sort';
+export * from './filter';
+

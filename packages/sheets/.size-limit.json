@@ -1,0 +1,7 @@
+[
+  {
+    "path": "dist/index.esm.js",
+    "limit": "60 KB"
+  }
+]
+
