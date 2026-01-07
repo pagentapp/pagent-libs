@@ -1,7 +1,7 @@
 {
-  "name": "@pagent-libs/core",
+  "name": "@pagent-libs/shared",
   "version": "0.1.0",
-  "description": "Core spreadsheet engine for pagent-sheets",
+  "description": "Shared utilities for pagent-libs (EventEmitter, collaboration)",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
   "type": "module",
@@ -25,15 +25,13 @@
     "clean": "rm -rf dist"
   },
   "keywords": [
-    "spreadsheet",
-    "sheet",
-    "excel",
-    "data-table"
+    "event-emitter",
+    "collaboration",
+    "shared",
+    "utilities"
   ],
   "license": "MIT",
-  "dependencies": {
-    "immer": "^10.0.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@rollup/plugin-typescript": "^11.1.0",
     "@types/jest": "^29.5.0",

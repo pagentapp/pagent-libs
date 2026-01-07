@@ -1,6 +1,6 @@
 import React, { memo, useRef, useEffect, useCallback, useState, useImperativeHandle, forwardRef } from 'react';
-import type { CellFormat } from '@pagent-libs/core';
-import { excelDateToJS } from '@pagent-libs/core';
+import type { CellFormat } from '@pagent-libs/sheets-core';
+import { excelDateToJS } from '@pagent-libs/sheets-core';
 
 export interface EditOverlayRef {
   insertAtCursor: (text: string, replaceExisting?: boolean) => void;

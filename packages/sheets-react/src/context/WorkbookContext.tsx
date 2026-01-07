@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useMemo, useState, useCallback, useEffect } from 'react';
-import { WorkbookImpl } from '@pagent-libs/core';
+import { WorkbookImpl } from '@pagent-libs/sheets-core';
 
 interface WorkbookContextValue {
   workbook: WorkbookImpl;

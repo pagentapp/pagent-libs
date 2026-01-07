@@ -1,6 +1,6 @@
 import React, { memo, useState, useEffect, useRef } from 'react';
-import type { ColumnFilter, FilterCriteria, Sheet } from '@pagent-libs/core';
-import { FilterManager } from '@pagent-libs/core';
+import type { ColumnFilter, FilterCriteria, Sheet } from '@pagent-libs/sheets-core';
+import { FilterManager } from '@pagent-libs/sheets-core';
 
 interface FilterModalProps {
   isOpen: boolean;

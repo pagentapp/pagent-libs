@@ -1,6 +1,6 @@
 import React, { memo, useState, useEffect, useRef } from 'react';
-import type { CellFormat, FormatType } from '@pagent-libs/core';
-import { formatNumber, getDefaultFormatForType } from '@pagent-libs/core';
+import type { CellFormat, FormatType } from '@pagent-libs/sheets-core';
+import { formatNumber, getDefaultFormatForType } from '@pagent-libs/sheets-core';
 
 interface FormatCellsModalProps {
   isOpen: boolean;

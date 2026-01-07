@@ -9,9 +9,9 @@ import { ContextMenu } from './ContextMenu';
 import { HeaderContextMenu } from './HeaderContextMenu';
 import { FilterModal } from './FilterModal';
 import { FormatCellsModal } from './FormatCellsModal';
-import type { CellPosition, Selection, CellFormat, ColumnFilter, CellStyle, SortOrder, FormatType } from '@pagent-libs/core';
-import { columnIndexToLabel } from '@pagent-libs/core';
-import { parseDateString } from '@pagent-libs/core';
+import type { CellPosition, Selection, CellFormat, ColumnFilter, CellStyle, SortOrder, FormatType } from '@pagent-libs/sheets-core';
+import { columnIndexToLabel } from '@pagent-libs/sheets-core';
+import { parseDateString } from '@pagent-libs/sheets-core';
 
 export interface WorkbookCanvasProps {
   className?: string;

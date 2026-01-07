@@ -7,10 +7,10 @@ import {
   type ResizeHandle,
   type CursorType,
   type FormulaRangeHighlight,
-} from '@pagent-libs/core';
-import type { Selection, Range, Cell } from '@pagent-libs/core';
-import { extractFormulaRanges, columnIndexToLabel, adjustFormula, type FormulaRange } from '@pagent-libs/core';
-import { FilterManager, excelDateToJS, formatJSDate } from '@pagent-libs/core';
+} from '@pagent-libs/sheets-core';
+import type { Selection, Range, Cell } from '@pagent-libs/sheets-core';
+import { extractFormulaRanges, columnIndexToLabel, adjustFormula, type FormulaRange } from '@pagent-libs/sheets-core';
+import { FilterManager, excelDateToJS, formatJSDate } from '@pagent-libs/sheets-core';
 
 export type ContextMenuType =
   | { type: 'cell'; cell: CellPosition; x: number; y: number }

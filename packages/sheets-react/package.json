@@ -1,5 +1,5 @@
 {
-  "name": "@pagent-libs/sheets",
+  "name": "@pagent-libs/sheets-react",
   "version": "0.1.0",
   "description": "React components for pagent-sheets",
   "main": "dist/index.js",
@@ -37,7 +37,7 @@
     "react-dom": ">=18.0.0"
   },
   "dependencies": {
-    "@pagent-libs/core": "^0.1.0",
+    "@pagent-libs/sheets-core": "^0.1.0",
     "immer": "^10.0.0"
   },
   "devDependencies": {

@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useState, useEffect, useRef } from 'react';
 import { useWorkbook } from '../context/WorkbookContext';
-import { columnIndexToLabel } from '@pagent-libs/core';
+import { columnIndexToLabel } from '@pagent-libs/sheets-core';
 
 interface FormulaBarProps {
   activeCell: { row: number; col: number } | null;
