@@ -15,7 +15,7 @@ export default defineConfig({
       sourcemap: true,
     },
   ],
-  external: ['react', 'react-dom', '@pagent-libs/core', 'immer', 'react/jsx-runtime'],
+  external: [],
   plugins: [
     typescript({
       tsconfig: './tsconfig.json',
