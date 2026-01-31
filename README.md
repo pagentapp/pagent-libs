@@ -102,19 +102,128 @@ function MySpreadsheet() {
 export default MySpreadsheet;
 ```
 
-### Key Components
+### Key Components - Sheets
 
 - **`WorkbookImpl`**: The core spreadsheet engine that manages data and state
 - **`WorkbookProvider`**: React context provider that manages workbook state
 - **`WorkbookCanvas`**: The main UI component that renders the spreadsheet
 
+### Basic Usage - Documents
+
+Here's how to add a document editor to your React application:
+
+```bash
+npm install @pagent-libs/docs-core @pagent-libs/docs-react
+```
+
+```tsx
+import React, { useState } from 'react';
+import { DocumentImpl, type DocumentData } from '@pagent-libs/docs-core';
+import { DocumentProvider, DocumentEditor } from '@pagent-libs/docs-react';
+
+// Document data in JSON format (can be loaded from backend/database)
+const initialDocumentData: DocumentData = {
+  id: 'my-document',
+  title: 'My Document',
+  defaultPageConfig: {
+    size: { w: 816, h: 1056 }, // Letter size at 96 DPI
+    margins: { top: 96, right: 96, bottom: 96, left: 96 },
+    orientation: 'portrait',
+  },
+  textStylePool: {
+    'style_bold': { bold: true },
+  },
+  paragraphStylePool: {},
+  sections: [
+    {
+      id: 'section_1',
+      pageConfig: {
+        size: { w: 816, h: 1056 },
+        margins: { top: 96, right: 96, bottom: 96, left: 96 },
+        orientation: 'portrait',
+      },
+      blocks: [
+        {
+          id: 'block_1',
+          type: 'heading',
+          level: 1,
+          content: [{ type: 'text', text: 'Welcome to Pagent Docs' }],
+        },
+        {
+          id: 'block_2',
+          type: 'paragraph',
+          content: [
+            { type: 'text', text: 'This is a ' },
+            { type: 'text', text: 'rich text', styleId: 'style_bold' },
+            { type: 'text', text: ' document editor.' },
+          ],
+        },
+      ],
+    },
+  ],
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+};
+
+function MyDocumentEditor() {
+  // 1. Create a document instance and load data
+  const [doc] = useState(() => {
+    const document = new DocumentImpl();
+    document.setData(initialDocumentData);
+    return document;
+  });
+
+  // Example: Access and save document data
+  const saveToDb = () => {
+    const documentData = doc.getData();
+    // Send to your backend API
+    console.log('Saving document data:', documentData);
+    // Example: fetch('/api/documents', { method: 'POST', body: JSON.stringify(documentData) })
+  };
+
+  return (
+    <div style={{ width: '100%', height: '800px' }}>
+      <button onClick={saveToDb} style={{ marginBottom: '10px', padding: '8px 16px' }}>
+        Save Document
+      </button>
+
+      {/* 2. Wrap your app with DocumentProvider */}
+      <DocumentProvider document={doc}>
+        {/* 3. Render the DocumentEditor component */}
+        <DocumentEditor
+          showToolbar={true}
+          showRuler={true}
+        />
+      </DocumentProvider>
+    </div>
+  );
+}
+
+export default MyDocumentEditor;
+```
+
+### Key Components - Docs
+
+- **`DocumentImpl`**: The core document engine that manages content and state
+- **`DocumentProvider`**: React context provider that manages document state
+- **`DocumentEditor`**: The main UI component with toolbar, rulers, and paginated editing
+
 ### Features Included
 
+**Spreadsheets:**
 - ✅ Virtual scrolling for performance
 - ✅ Cell editing with keyboard navigation
-- ✅ Formula support (when using core features)
+- ✅ Formula support (100+ functions coming soon)
 - ✅ Customizable dimensions and styling
 - ✅ Sparse data storage (only stores non-empty cells)
+
+**Documents:**
+- ✅ True page layout with line-level pagination
+- ✅ Rich text formatting (bold, italic, fonts, colors)
+- ✅ Headers & footers with dynamic fields (page numbers, date)
+- ✅ Tables with cell formatting
+- ✅ Images (block and inline)
+- ✅ Undo/redo history
 
 ## Development
 
