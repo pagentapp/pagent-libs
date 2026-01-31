@@ -123,6 +123,14 @@ export class InputBridge {
   // Deduplication state for selection updates during drag
   private lastProcessedPos: number = -1;  // Cache last position to skip redundant updates
   
+  // Multi-click tracking for word/paragraph/document selection
+  private clickCount: number = 0;
+  private lastClickTime: number = 0;
+  private lastClickX: number = 0;
+  private lastClickY: number = 0;
+  private readonly MULTI_CLICK_THRESHOLD = 500; // ms between clicks
+  private readonly MULTI_CLICK_DISTANCE = 5; // px tolerance for multi-click
+  
   // Cell selection state (for two-click table editing)
   private selectedCell: CellSelection | null = null;
   private isEditingCell: boolean = false;
@@ -438,7 +446,13 @@ export class InputBridge {
   
   /**
    * Handle mousedown events - start selection and focus hidden editor
-   * Implements two-click behavior for table cells:
+   * Implements:
+   * - Single click: position cursor
+   * - Double click: select word
+   * - Triple click: select paragraph/block
+   * - Quadruple click: select entire document
+   * 
+   * Also implements two-click behavior for table cells:
    * - First click: select the cell (visually, no text selection)
    * - Second click on same cell: enter edit mode
    */
@@ -454,6 +468,27 @@ export class InputBridge {
       });
       return;
     }
+    
+    // Track multi-click (double, triple, quadruple)
+    const now = performance.now();
+    const timeDelta = now - this.lastClickTime;
+    const distX = Math.abs(e.clientX - this.lastClickX);
+    const distY = Math.abs(e.clientY - this.lastClickY);
+    const isMultiClick = timeDelta < this.MULTI_CLICK_THRESHOLD && 
+                         distX < this.MULTI_CLICK_DISTANCE && 
+                         distY < this.MULTI_CLICK_DISTANCE;
+    
+    if (isMultiClick) {
+      this.clickCount = (this.clickCount % 4) + 1; // Cycle 1-4
+    } else {
+      this.clickCount = 1;
+    }
+    
+    this.lastClickTime = now;
+    this.lastClickX = e.clientX;
+    this.lastClickY = e.clientY;
+    
+    debugLog('Multi-click detection:', { clickCount: this.clickCount, isMultiClick, timeDelta });
     
     // Check if click is on a table cell
     const clickedCell = this.getCellAtPoint(e.clientX, e.clientY);
@@ -473,7 +508,12 @@ export class InputBridge {
         // Position cursor at click location within the cell
         const pos = this.coordsToPosition(e.clientX, e.clientY);
         if (pos !== null) {
-          this.setSelection(pos, pos);
+          // Apply multi-click selection within the cell
+          if (this.clickCount >= 2) {
+            this.handleMultiClickSelection(pos, clickedCell.pmStart, clickedCell.pmEnd);
+          } else {
+            this.setSelection(pos, pos);
+          }
           this.dragStartPos = pos;
         }
         
@@ -509,16 +549,25 @@ export class InputBridge {
     
     if (pos !== null) {
       const selStartTime = performance.now();
-      this.setSelection(pos, pos);
+      
+      // Handle multi-click selection
+      if (this.clickCount >= 2) {
+        this.handleMultiClickSelection(pos);
+      } else {
+        this.setSelection(pos, pos);
+        this.dragStartPos = pos;
+      }
+      
       const selTime = performance.now() - selStartTime;
       debugLog('setSelection took', selTime.toFixed(2), 'ms');
-      this.dragStartPos = pos;
     } else {
       debugLog('WARNING: coordsToPosition returned null!');
     }
     
-    // Mark that we're dragging for auto-scroll
-    this.isDragging = true;
+    // Only enable dragging for single click (not multi-click selections)
+    if (this.clickCount === 1) {
+      this.isDragging = true;
+    }
     
     // Store mouse position for auto-scroll
     this.lastMouseX = e.clientX;
@@ -530,6 +579,178 @@ export class InputBridge {
     
     const totalTime = performance.now() - startTime;
     debugLog('mousedown COMPLETE in', totalTime.toFixed(2), 'ms');
+  }
+  
+  /**
+   * Handle multi-click selection (double, triple, quadruple click)
+   * - Double click (2): select word
+   * - Triple click (3): select paragraph/block
+   * - Quadruple click (4): select entire document
+   */
+  private handleMultiClickSelection(pos: number, constrainStart?: number, constrainEnd?: number): void {
+    if (!this.hiddenEditor) return;
+    
+    const { state } = this.hiddenEditor;
+    const doc = state.doc;
+    
+    if (this.clickCount === 2) {
+      // Double-click: select word
+      const wordRange = this.getWordRangeAtPosition(pos);
+      if (wordRange) {
+        let { from, to } = wordRange;
+        // Constrain to cell bounds if provided
+        if (constrainStart !== undefined) from = Math.max(from, constrainStart);
+        if (constrainEnd !== undefined) to = Math.min(to, constrainEnd);
+        this.setSelection(from, to);
+        // Set drag anchors to word boundaries for word-wise drag selection
+        this.dragStartPos = from;
+      } else {
+        this.setSelection(pos, pos);
+        this.dragStartPos = pos;
+      }
+    } else if (this.clickCount === 3) {
+      // Triple-click: select paragraph/block
+      const blockRange = this.getBlockRangeAtPosition(pos);
+      if (blockRange) {
+        let { from, to } = blockRange;
+        // Constrain to cell bounds if provided
+        if (constrainStart !== undefined) from = Math.max(from, constrainStart);
+        if (constrainEnd !== undefined) to = Math.min(to, constrainEnd);
+        this.setSelection(from, to);
+        this.dragStartPos = from;
+      } else {
+        this.setSelection(pos, pos);
+        this.dragStartPos = pos;
+      }
+    } else if (this.clickCount === 4) {
+      // Quadruple-click: select entire document
+      // If constrained to cell, select entire cell content instead
+      if (constrainStart !== undefined && constrainEnd !== undefined) {
+        this.setSelection(constrainStart + 1, constrainEnd - 1);
+      } else {
+        // Select entire document (from first text position to last)
+        this.setSelection(1, doc.content.size - 1);
+      }
+      this.dragStartPos = 1;
+    }
+  }
+  
+  /**
+   * Get the word range at the given ProseMirror position
+   * Returns { from, to } positions that encompass the word
+   */
+  private getWordRangeAtPosition(pos: number): { from: number; to: number } | null {
+    if (!this.hiddenEditor) return null;
+    
+    const { state } = this.hiddenEditor;
+    const doc = state.doc;
+    
+    // Resolve position to get the node and offset
+    const $pos = doc.resolve(pos);
+    
+    // Get the parent node (usually paragraph or similar text container)
+    const parent = $pos.parent;
+    if (!parent.isTextblock) return null;
+    
+    // Get the text content of the parent
+    const parentText = parent.textContent;
+    const parentStart = $pos.start();
+    const offsetInParent = pos - parentStart;
+    
+    if (parentText.length === 0) return null;
+    
+    // Find word boundaries using regex
+    // Word characters: letters, numbers, and common word chars
+    const isWordChar = (char: string): boolean => {
+      return /[\w\u00C0-\u024F\u1E00-\u1EFF]/.test(char);
+    };
+    
+    // If we're not on a word character, try to find the nearest word
+    const currentChar = parentText[offsetInParent] || '';
+    const prevChar = offsetInParent > 0 ? parentText[offsetInParent - 1] : '';
+    
+    let wordStart = offsetInParent;
+    let wordEnd = offsetInParent;
+    
+    // If current position is not on a word char, check if we're right after one
+    if (!isWordChar(currentChar)) {
+      if (isWordChar(prevChar)) {
+        // Position is right after a word, select that word
+        wordStart = offsetInParent - 1;
+        wordEnd = offsetInParent;
+      } else {
+        // Not on a word - select whitespace or punctuation as a unit
+        // Find the extent of the current non-word character sequence
+        while (wordStart > 0 && !isWordChar(parentText[wordStart - 1])) {
+          wordStart--;
+        }
+        while (wordEnd < parentText.length && !isWordChar(parentText[wordEnd])) {
+          wordEnd++;
+        }
+        return {
+          from: parentStart + wordStart,
+          to: parentStart + wordEnd
+        };
+      }
+    }
+    
+    // Find word start
+    while (wordStart > 0 && isWordChar(parentText[wordStart - 1])) {
+      wordStart--;
+    }
+    
+    // Find word end
+    while (wordEnd < parentText.length && isWordChar(parentText[wordEnd])) {
+      wordEnd++;
+    }
+    
+    // Ensure we have a valid range
+    if (wordStart === wordEnd) return null;
+    
+    return {
+      from: parentStart + wordStart,
+      to: parentStart + wordEnd
+    };
+  }
+  
+  /**
+   * Get the block/paragraph range at the given ProseMirror position
+   * Returns { from, to } positions that encompass the block
+   */
+  private getBlockRangeAtPosition(pos: number): { from: number; to: number } | null {
+    if (!this.hiddenEditor) return null;
+    
+    const { state } = this.hiddenEditor;
+    const doc = state.doc;
+    
+    // Resolve position
+    const $pos = doc.resolve(pos);
+    
+    // Find the closest block-level node
+    // Walk up until we find a node that's a direct child of the doc or a block container
+    let depth = $pos.depth;
+    while (depth > 0) {
+      const node = $pos.node(depth);
+      const parent = $pos.node(depth - 1);
+      
+      // Check if this is a block node (paragraph, heading, list item, etc.)
+      if (node.isBlock && parent.type.name === 'doc') {
+        const start = $pos.start(depth);
+        const end = $pos.end(depth);
+        return { from: start, to: end };
+      }
+      
+      // Also handle list items - select the content of the list item
+      if (node.isTextblock) {
+        const start = $pos.start(depth);
+        const end = $pos.end(depth);
+        return { from: start, to: end };
+      }
+      
+      depth--;
+    }
+    
+    return null;
   }
   
   /**
