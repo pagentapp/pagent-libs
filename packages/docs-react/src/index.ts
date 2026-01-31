@@ -1,0 +1,129 @@
+// @pagent-libs/docs-react
+// React components for pagent-docs
+
+// Context
+export { DocumentProvider, useDocument, useSelection, useSections, useHistory } from './context/DocumentContext';
+
+// Components
+export { DocumentEditor } from './components/DocumentEditor';
+export { Toolbar } from './components/Toolbar';
+export { Ruler } from './components/Ruler';
+export { PageView } from './components/PageView';
+export { PageSetupModal } from './components/PageSetupModal';
+export { HeaderFooterEditor } from './components/HeaderFooterEditor';
+
+// ============================================================================
+// True Layout Engine (Recommended)
+// ============================================================================
+
+export {
+  // Main component
+  TrueLayoutEditor,
+  // FlowBlocks
+  proseMirrorToFlowBlocks,
+  createBlockPositionMap,
+  // Measurer
+  DomMeasurer,
+  hasLineData,
+  getLineCount,
+  getLineRangeHeight,
+  // Layout Engine
+  computeTrueLayout,
+  findBlockPage,
+  findBlockFragments,
+  getPageY,
+  findPageAtY,
+  blockPositionToPageCoords,
+  // DOM Painter
+  DomPainter,
+  createPageElement,
+  // Input Bridge
+  InputBridge,
+  createInputBridge,
+  getInputBridge,
+  // Selection Overlay
+  SelectionOverlayManager,
+  getSelectionOverlayStyles,
+} from './core';
+
+export type {
+  TrueLayoutEditorProps,
+  TrueLayoutEditorHandle,
+  // FlowBlocks
+  FlowBlock,
+  Run,
+  TextRun,
+  ParagraphBlock,
+  HeadingBlock,
+  ListItemBlock,
+  TableBlock,
+  ImageBlock,
+  // Measurer
+  MeasurerConfig,
+  LineMeasure,
+  Measure,
+  // Layout
+  PageConfig,
+  PageFragment,
+  PageLayout,
+  DocumentLayout,
+  LayoutOptions,
+  // Painter
+  PainterConfig,
+  RenderedPage,
+  // Selection
+  CaretPosition,
+  SelectionRect,
+  SelectionState,
+  // Header/Footer
+  HeaderFooterContent,
+  HeaderFooterParagraph,
+  HeaderFooterInlineContent,
+  HeaderFooterTextRun,
+  DynamicFieldRun,
+  DynamicFieldType,
+  DynamicFieldContext,
+} from './core';
+
+// ============================================================================
+// Legacy Architecture (use TrueLayoutEditor for new code)
+// ============================================================================
+
+export {
+  PresentationEditor,
+  HiddenEditor,
+  PageRenderer,
+  SelectionOverlay,
+  computeLayout,
+  measureBlocks,
+  findPositionInLayout,
+  findPositionAtCoords,
+  getPositionCoords,
+  computeSelectionRects,
+} from './core';
+
+export type {
+  PresentationEditorProps,
+  HiddenEditorHandle,
+  HiddenEditorProps,
+  PageRendererProps,
+  SelectionOverlayProps,
+  LegacyPageConfig,
+  BlockMeasurement,
+  PageBlock,
+  LegacyPageLayout,
+  LegacyDocumentLayout,
+  LegacyLayoutOptions,
+} from './core';
+
+// ProseMirror components (for direct access if needed)
+export { 
+  ProseMirrorEditor, 
+  useProseMirrorCommands,
+} from './components/ProseMirrorEditor';
+
+export type {
+  ProseMirrorEditorProps,
+  ProseMirrorEditorRef,
+  ActiveMarks,
+} from './components/ProseMirrorEditor';

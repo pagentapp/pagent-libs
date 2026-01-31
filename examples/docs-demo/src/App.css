@@ -1,0 +1,96 @@
+.app {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  background: linear-gradient(135deg, #1a73e8 0%, #4285f4 100%);
+  color: white;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.app-header h1 {
+  font-size: 20px;
+  font-weight: 500;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.app-header h1::before {
+  content: '📄';
+  font-size: 24px;
+}
+
+.app-header p {
+  font-size: 13px;
+  opacity: 0.9;
+  margin: 0;
+}
+
+.header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.header-right {
+  display: flex;
+  gap: 12px;
+}
+
+.header-button {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+
+.header-button:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.header-button:active {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.app-main {
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Editable block placeholder */
+[data-placeholder]:empty::before,
+[data-placeholder]:only-child:empty::before {
+  content: attr(data-placeholder);
+  color: #9aa0a6;
+  pointer-events: none;
+}
+
+/* Ensure contenteditable elements have proper cursor */
+[contenteditable="true"] {
+  cursor: text;
+}
+
+[contenteditable="true"]:focus {
+  outline: none;
+}
+
+/* Selection styling */
+::selection {
+  background-color: #b4d5fe;
+}
+
