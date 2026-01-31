@@ -123,7 +123,7 @@ export const LinkDialog = memo(function LinkDialog({
     }
     
     const { state, dispatch } = editorView;
-    const { from, to, empty } = state.selection;
+    const { from, empty } = state.selection;
     
     // If there's no selection and we have link text, insert the text first
     if (empty && text.trim()) {

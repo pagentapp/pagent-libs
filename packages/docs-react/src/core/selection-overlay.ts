@@ -1307,34 +1307,6 @@ export class SelectionOverlayManager {
   }
   
   /**
-   * Render selection rectangles (legacy - creates new elements)
-   */
-  private renderSelectionRects(rects: SelectionRect[]): void {
-    if (!this.overlayContainer || !this.layout) return;
-    
-    const { pageConfig, scale } = this.layout;
-    const margins = pageConfig.margins;
-    
-    for (const rect of rects) {
-      const el = document.createElement('div');
-      el.className = 'selection-rect';
-      
-      // Calculate absolute position
-      const pageY = getPageY(this.layout, rect.pageIndex);
-      const absoluteX = margins.left * scale + rect.x;
-      const absoluteY = pageY + margins.top * scale + rect.y;
-      
-      el.style.left = `${absoluteX}px`;
-      el.style.top = `${absoluteY}px`;
-      el.style.width = `${rect.width}px`;
-      el.style.height = `${rect.height}px`;
-      
-      this.overlayContainer.appendChild(el);
-      this.selectionElements.push(el);
-    }
-  }
-  
-  /**
    * Clean up
    */
   destroy(): void {

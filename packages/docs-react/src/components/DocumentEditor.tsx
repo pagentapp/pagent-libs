@@ -40,6 +40,10 @@ const defaultActiveMarks: ActiveMarks = {
   subscript: false,
   link: null,
   textStyle: null,
+  blockType: 'paragraph',
+  headingLevel: 1,
+  listType: null,
+  alignment: 'left',
 };
 
 /**

@@ -176,6 +176,7 @@ export const TrueLayoutEditor = forwardRef<TrueLayoutEditorHandle, TrueLayoutEdi
     const blocksRef = useRef<FlowBlock[]>([]);
     const performLayoutRef = useRef<((doc: PmNode, view: EditorView) => void) | null>(null);
     const measuresRef = useRef<Measure[]>([]);
+    const blockPositionMapRef = useRef<Map<string, { start: number; end: number }>>(new Map());
     
     // Track currently hovered table/image for showing resize handles
     const hoveredTableRef = useRef<HTMLTableElement | null>(null);
@@ -358,7 +359,9 @@ export const TrueLayoutEditor = forwardRef<TrueLayoutEditorHandle, TrueLayoutEdi
               pageLoop: for (let i = 0; i < layoutRef.current.pages.length; i++) {
                 const page = layoutRef.current.pages[i];
                 for (const fragment of page.fragments) {
-                  if (from >= fragment.pmStart && from <= fragment.pmEnd) {
+                  // Look up PM positions from the block position map
+                  const posInfo = blockPositionMapRef.current.get(fragment.blockId);
+                  if (posInfo && from >= posInfo.start && from <= posInfo.end) {
                     newActivePageIndex = i;
                     break pageLoop;
                   }
@@ -458,6 +461,7 @@ export const TrueLayoutEditor = forwardRef<TrueLayoutEditorHandle, TrueLayoutEdi
       
       // 2. Create PM position map for blocks
       const pmPositions = createBlockPositionMap(doc, blocks);
+      blockPositionMapRef.current = pmPositions;
       
       // 3. Measure all blocks (clear cache first to ensure fresh measurements)
       measurerRef.current.clearCache();
@@ -535,7 +539,6 @@ export const TrueLayoutEditor = forwardRef<TrueLayoutEditorHandle, TrueLayoutEdi
       
       imageInteractionRef.current = createImageInteractionManager();
       imageInteractionRef.current.initialize(pagesContainerRef.current, editorView, {
-        scale: zoom,
         onImageUpdate: () => {
           // Trigger re-layout after image modifications (use ref to avoid stale closure)
           if (editorView) {

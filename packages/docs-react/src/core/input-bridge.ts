@@ -960,9 +960,8 @@ export class InputBridge {
     
     const mountRect = this.visibleMount.getBoundingClientRect();
     
-    // Clamp coordinates to mount bounds for position calculation
+    // Clamp X coordinate to mount bounds for position calculation
     const clampedX = Math.max(mountRect.left, Math.min(mountRect.right, clientX));
-    const clampedY = Math.max(mountRect.top, Math.min(mountRect.bottom, clientY));
     
     // If mouse is above the visible area, get position at top
     if (clientY < mountRect.top) {

@@ -2,7 +2,7 @@
  * ColorPicker - A dropdown color picker with preset colors and custom input
  */
 
-import { useState, useRef, useEffect, memo } from 'react';
+import { useState, useRef, memo } from 'react';
 
 interface ColorPickerProps {
   /** Currently selected color */

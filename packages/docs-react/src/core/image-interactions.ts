@@ -25,7 +25,6 @@ export interface ImagePosition {
 export class ImageInteractionManager {
   private container: HTMLElement | null = null;
   private editorView: EditorView | null = null;
-  private scale: number = 1;
   
   // Drag handle
   private dragHandle: HTMLElement | null = null;
@@ -62,12 +61,10 @@ export class ImageInteractionManager {
     editorView: EditorView,
     options?: {
       onImageUpdate?: () => void;
-      scale?: number;
     }
   ): void {
     this.container = container;
     this.editorView = editorView;
-    this.scale = options?.scale ?? 1;
     this.onImageUpdate = options?.onImageUpdate ?? null;
     
     // Add event listeners
@@ -84,9 +81,10 @@ export class ImageInteractionManager {
   
   /**
    * Update the scale factor (call when zoom changes)
+   * Currently unused but kept for future zoom-aware positioning
    */
-  setScale(scale: number): void {
-    this.scale = scale;
+  setScale(_scale: number): void {
+    // Reserved for future use when image interactions need zoom awareness
   }
   
   /**

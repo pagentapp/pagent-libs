@@ -2,6 +2,14 @@
   "name": "@pagent-libs/sheets-core",
   "version": "0.1.0",
   "description": "Core spreadsheet engine for pagent-sheets",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pagentapp/pagent-libs.git",
+    "directory": "packages/sheets-core"
+  },
+  "bugs": {
+    "url": "https://github.com/pagentapp/pagent-libs/issues"
+  },
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
   "type": "module",
